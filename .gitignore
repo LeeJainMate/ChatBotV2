@@ -1,0 +1,26 @@
+
+.env
+*.key
+*.secret
+*.pem
+
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+
+*.log
+*.tmp
+*.bak
+.DS_Store           # สำหรับ Mac
+Thumbs.db           # สำหรับ Windows
+*.swp
+*.swo
+
+data/*.csv

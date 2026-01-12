@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <title>Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; margin: 0; }
+
+        /* Floating Chat Icon */
+        #chat-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #FFCC00; /* สีเหลืองหลัก */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+        #chat-icon:hover { transform: scale(1.1); }
+
+        /* Chat Box */
+        #chat-box {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 550px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        #chat-header {
+            background: #FFCC00; /* เหลืองหลัก */
+            color: #333;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        #close-chat {
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0 5px;
+            color: #333;
+        }
+
+        #chat-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #f9f9f9;
+        }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            align-self: flex-start;
+        }
+
+        .chat-user {
+            background: #FFCC00; /* เหลืองสำหรับข้อความผู้ใช้ */
+            color: #333;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bot {
+            background: #7F7F7F; /* เทาเข้มสำหรับบอท */
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-loading {
+            font-style: italic;
+            color: #666;
+            align-self: flex-start;
+        }
+
+        #chat-input {
+            display: flex;
+            border-top: 1px solid #eee;
+            background: #ffffff;
+        }
+
+        #msg {
+            flex: 1;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #send-btn {
+            border: none;
+            padding: 0 18px;
+            background: #FFCC00; /* เหลืองสำหรับปุ่มส่ง */
+            color: #333;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        #send-btn:hover {
+            background: #e6b800; /* เหลืองเข้มขึ้นตอน hover */
+        }
+    </style>
+</head>
+<body>
+
+<!-- Floating Chat Icon -->
+<div id="chat-icon" onclick="toggleChat()">🤖</div>
+
+<!-- Chat Box -->
+<div id="chat-box">
+    <div id="chat-header">
+        <span>Chatbot</span>
+        <span id="close-chat" onclick="toggleChat()">✕</span>
+    </div>
+
+    <div id="chat-content">
+        <div class="chat-msg chat-bot">สวัสดีครับ! ผมคือ Chatbot <br>พร้อมช่วยตอบคำถามจากข้อมูลที่ปรึกษาและคณะต่าง ๆ แล้วนะครับ 😊</div>
+    </div>
+
+    <div id="chat-input">
+        <input id="msg" placeholder="พิมพ์ข้อความ..." autocomplete="off" />
+        <button id="send-btn" onclick="sendMessage()" title="ส่ง">🛩️</button>
+    </div>
+</div>
+
+<script>
+function toggleChat() {
+    const box = document.getElementById("chat-box");
+    box.style.display = box.style.display === "flex" ? "none" : "flex";
+}
+
+async function sendMessage() {
+    const input = document.getElementById("msg");
+    let message = input.value.trim();
+    if (!message) return;
+
+    const chatContent = document.getElementById("chat-content");
+
+    chatContent.innerHTML += `<div class="chat-msg chat-user">${escapeHtml(message)}</div>`;
+
+    chatContent.innerHTML += `<div class="chat-msg chat-loading" id="loading">กำลังคิด...</div>`;
+    chatContent.scrollTop = chatContent.scrollHeight;
+    input.value = "";
+
+    try {
+        const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message })
+        });
+
+        document.getElementById("loading").remove();
+
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        const reply = data.reply || "ไม่มีคำตอบ";
+
+        chatContent.innerHTML += `<div class="chat-msg chat-bot">${escapeHtml(reply)}</div>`;
+    } catch (err) {
+        document.getElementById("loading")?.remove();
+        chatContent.innerHTML += `<div class="chat-msg chat-bot">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</div>`;
+    }
+
+    chatContent.scrollTop = chatContent.scrollHeight;
+}
+
+document.getElementById("msg").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
