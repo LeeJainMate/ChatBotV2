@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Chatbot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
     <style>
         body { font-family: sans-serif; margin: 0; }
 
@@ -120,7 +122,7 @@
             border: none;
             padding: 0 18px;
             background: #FFCC00; /* เหลืองสำหรับปุ่มส่ง */
-            color: #333;
+            color: #fff;
             cursor: pointer;
             font-size: 20px;
         }
@@ -133,12 +135,12 @@
 <body>
 
 <!-- Floating Chat Icon -->
-<div id="chat-icon" onclick="toggleChat()">🤖</div>
+<div id="chat-icon" onclick="toggleChat()"><i data-lucide="bot"></i></div>
 
 <!-- Chat Box -->
 <div id="chat-box">
     <div id="chat-header">
-        <span>Chatbot</span>
+        <span>CHATBOT</span>
         <span id="close-chat" onclick="toggleChat()">✕</span>
     </div>
 
@@ -148,7 +150,7 @@
 
     <div id="chat-input">
         <input id="msg" placeholder="พิมพ์ข้อความ..." autocomplete="off" />
-        <button id="send-btn" onclick="sendMessage()" title="ส่ง">🛩️</button>
+        <button id="send-btn" onclick="sendMessage()" title="ส่ง"><i data-lucide="send"></i></button>
     </div>
 </div>
 
@@ -205,6 +207,10 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
 </script>
 
 </body>
